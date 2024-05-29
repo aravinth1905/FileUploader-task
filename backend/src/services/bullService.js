@@ -13,9 +13,11 @@ bullQueue.process(async (job) => {
   const errors = [];
   try {
     const s3Data = await AwsS3Wrapper.getObject(key);
+    await AwsS3Wrapper.uploadToS3(key, s3Data.Body);
     const excelParser = new ExcelParser(s3Data.Body);
     const excelData = excelParser.toJson();
     const processedData = await excelParser.processExcelData(excelData);
+
 
     // Joi validation
     processedData.forEach((data) => {

@@ -46,22 +46,8 @@ class AwsS3Wrapper {
     }
   }
 
-  static async deleteItemFromS3(key) {
-    const params = {
-      Bucket: S3BucketName,
-      Key: key,
-    };
 
-    const promisedDeleteObject = promisify(S3Client.deleteObject).bind(
-      S3Client
-    );
-    try {
-      await promisedDeleteObject(params);
-    } catch (err) {
-      console.error('Error deleting item from FakeS3:', err);
-      throw new Error('Failed to delete item from FakeS3.');
-    }
-  }
+  
 }
 
 module.exports = AwsS3Wrapper;

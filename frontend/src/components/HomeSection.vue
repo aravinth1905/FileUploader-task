@@ -47,8 +47,8 @@
                     <td>{{ data.primaryMode }}</td>
                     <td>{{ data.expectedDeliveryDate.split("T")[0] }}</td>
                     <td>{{ data.incoterm }}</td>
-                    <td>{{ data.sourceLocation._id }}</td>
-                    <td>{{ data.destinationLocation._id }}</td>
+                    <td>{{ data.sourceLocation }}</td>
+                    <td>{{ data.destinationLocation}}</td> 
                     <td>{{ data.cargoType }}</td>
                     <td>{{ data.materialCode }}</td>
                     <td>{{ data.quantity }}</td>
@@ -106,7 +106,9 @@ export default {
       try {
         const result = await actions.getExcelFile();
         if (result && !result.error) {
-          this.shipmentData = result.data.data;
+          const shipments=result.data.data.flat()
+          this.shipmentData = shipments;
+         console.log('shipments',shipments )
         }
       } catch (error) {
         console.log(error);

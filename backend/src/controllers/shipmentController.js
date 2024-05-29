@@ -2,6 +2,8 @@
 const bullService = require('../services/bullService.js');
 const shipmentModel=require('../filemodules/shipmentModule.js')
 const ExcelGenerator=require('../services/excel-generator.js');
+const AwsS3Wrapper=require('../services/awsS3Wrapper.js');
+const ExcelParser=require('../utils/excelParser.js')
 const uploadFile = async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded.' });
@@ -17,14 +19,23 @@ const uploadFile = async (req, res, next) => {
   
   const getAllFileDetails = async (req, res, next) => {
     try {
-      const allShipments = await shipmentModel.find();
-      if (allShipments.length === 0) {
-        return res.status(404).json({ error: 'No shipments found.' });
+      const files = await AwsS3Wrapper.getAllItemsFromS3();
+      if (files.length === 0) {
+        return res.status(404).json({ error: 'No files found in S3.' });
       }
-      res.status(200).json({ status: 'success', data: allShipments });
+      const allData = [];
+      for (const key of files) {
+        const fileData = await AwsS3Wrapper.getObject(key);     
+        const excelParser = new ExcelParser(fileData.Body);
+        const jsonData = excelParser.toJson();    
+        const processedData = await excelParser.processExcelData(jsonData);
+        allData.push(processedData);
+        
+      }
+      res.status(200).json({ status: 'success', data: allData });
     } catch (error) {
-      console.error('Error fetching shipments:', error);
-      res.status(500).json({ error: 'Failed to fetch shipments.' });
+      console.error('Error fetching items from S3:', error);
+      res.status(500).json({ error: 'Failed to fetch items from S3.' });
     }
   };
   const exportExcelFile = async (req, res, next) => {
@@ -43,5 +54,7 @@ const uploadFile = async (req, res, next) => {
       console.error('Error fetching shipments:', error);
       res.status(500).json({ error: 'Failed to fetch shipments.' });
     }
+   
   };
+
   module.exports = {uploadFile, getAllFileDetails,exportExcelFile};

@@ -14,9 +14,7 @@ class ExcelParser {
       defval: '',
     });
     json = this.removeAsteriskMethod(json);
-
     this.headers = Object.keys(json[0] || {});
-
     return json;
   }
 
@@ -42,27 +40,6 @@ class ExcelParser {
           'Shipment Number': shipmentNumber,
         } = shipmentData;
 
-        // Find or create source location
-        let sourceLocation = await Location.findOne({
-          locationName: sourceLocationName,
-        });
-        if (!sourceLocation) {
-          sourceLocation = await Location.create({
-            locationName: sourceLocationName,
-          });
-        }
-
-        // Find or create destination location
-        let destinationLocation = await Location.findOne({
-          locationName: destinationLocationName,
-        });
-        if (!destinationLocation) {
-          destinationLocation = await Location.create({
-            locationName: destinationLocationName,
-          });
-        }
-
-        // Create a new shipment object with only the required fields
         const shipment = {
           shipmentType,
           orderNumber,
@@ -70,8 +47,8 @@ class ExcelParser {
           primaryMode,
           expectedDeliveryDate: new Date(expectedDeliveryDate),
           incoterm,
-          sourceLocation: sourceLocation._id.toString(),
-          destinationLocation: destinationLocation._id.toString(),
+          sourceLocation: sourceLocationName,
+          destinationLocation: destinationLocationName,
           cargoType,
           materialCode,
           quantity,

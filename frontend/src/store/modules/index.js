@@ -9,7 +9,6 @@ function enableNamespacedModule() {
   const modules = {
     shipment,
   };
-   // add new modules here;
   const keys = Object.keys(modules);
   keys.forEach((module) => {
     modules[module].namespaced = true;
