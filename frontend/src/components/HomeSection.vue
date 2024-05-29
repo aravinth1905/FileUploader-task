@@ -108,7 +108,6 @@ export default {
         if (result && !result.error) {
           const shipments=result.data.data;
           this.shipmentData = shipments;
-         console.log('shipments',shipments )
         }
       } catch (error) {
         console.log(error);
