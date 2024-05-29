@@ -8,6 +8,7 @@ class ExcelGenerator {
   }
 
   flattenData(data) {
+    console.log('datass', data);
     return data.map(item => ({
       shipmentType: item.shipmentType,
       orderNumber: item.orderNumber,
@@ -15,8 +16,8 @@ class ExcelGenerator {
       primaryMode: item.primaryMode,
       expectedDeliveryDate: item.expectedDeliveryDate.toISOString().split('T')[0], // Format date
       incoterm: item.incoterm,
-      sourceLocation: item.sourceLocation.locationName,
-      destinationLocation: item.destinationLocation.locationName,
+      sourceLocation: item.sourceLocation,
+      destinationLocation: item.destinationLocation,
       cargoType: item.cargoType,
       materialCode: item.materialCode,
       quantity: item.quantity,

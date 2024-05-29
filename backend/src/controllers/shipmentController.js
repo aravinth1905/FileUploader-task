@@ -23,15 +23,7 @@ const uploadFile = async (req, res, next) => {
       if (files.length === 0) {
         return res.status(404).json({ error: 'No files found in S3.' });
       }
-      const allData = [];
-      for (const key of files) {
-        const fileData = await AwsS3Wrapper.getObject(key);     
-        const excelParser = new ExcelParser(fileData.Body);
-        const jsonData = excelParser.toJson();    
-        const processedData = await excelParser.processExcelData(jsonData);
-        allData.push(processedData);
-        
-      }
+      const allData=await getDataFromS3(files);
       res.status(200).json({ status: 'success', data: allData });
     } catch (error) {
       console.error('Error fetching items from S3:', error);
@@ -40,11 +32,12 @@ const uploadFile = async (req, res, next) => {
   };
   const exportExcelFile = async (req, res, next) => {
     try {
-      const allShipments = await shipmentModel.find();
-      if (allShipments.length === 0) {
+      const files = await AwsS3Wrapper.getAllItemsFromS3();  
+      if (files.length === 0) {
         return res.status(404).json({ error: 'No shipments found.' });
-      }
-      const excelGen = new ExcelGenerator(allShipments);    
+      }       
+      const allShipmentsData=await getDataFromS3(files);
+      const excelGen = new ExcelGenerator(allShipmentsData);    
       const excelData = excelGen.generateXls();
       res.setHeader('Content-Disposition', `attachment; filename=shipment-list.xlsx`);
       res.setHeader('Content-Transfer-Encoding', 'binary');
@@ -56,5 +49,17 @@ const uploadFile = async (req, res, next) => {
     }
    
   };
+  const getDataFromS3=async(files)=>{
+   const allData = [];
+    for (const key of files) {
+      const fileData = await AwsS3Wrapper.getObject(key);     
+      const excelParser = new ExcelParser(fileData.Body);
+      const jsonData = excelParser.toJson();    
+      const processedData = await excelParser.processExcelData(jsonData);
+      allData.push(...processedData);
+      
+    }
+    return allData;
+  }
 
   module.exports = {uploadFile, getAllFileDetails,exportExcelFile};

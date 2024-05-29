@@ -106,7 +106,7 @@ export default {
       try {
         const result = await actions.getExcelFile();
         if (result && !result.error) {
-          const shipments=result.data.data.flat()
+          const shipments=result.data.data;
           this.shipmentData = shipments;
          console.log('shipments',shipments )
         }
@@ -119,12 +119,6 @@ export default {
       try {
         const result = await actions.exportExcelFile();
         if (result && !result.error) {
-          const url = window.URL.createObjectURL(new Blob([result.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'shipment-list.xlsx');
-          document.body.appendChild(link);
-          link.click();
           this.showMessage('File downloaded successfully!', false);
         }
       } catch (error) {
