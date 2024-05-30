@@ -1,4 +1,3 @@
-
 const Bull = require('bull')
 const ShipmentService =require('./shipmentService.js');
 const ExcelParser =require('../utils/excelParser.js');
@@ -13,21 +12,18 @@ bullQueue.process(async (job) => {
   const errors = [];
   try {
     const s3Data = await AwsS3Wrapper.getObject(key);
-    await AwsS3Wrapper.uploadToS3(key, s3Data.Body);
     const excelParser = new ExcelParser(s3Data.Body);
     const excelData = excelParser.toJson();
     const processedData = await excelParser.processExcelData(excelData);
-
 
     // Joi validation
     processedData.forEach((data) => {
       const val = shipmentSchemaValidation.validate(data);
       if (val.error) errors.push(val.error.message);
     });
-
-    if (errors.length > 0) {
+    if (errors.length > 0) {   
       const errorMessage = errors.join(', ');
-      // throw errors;
+    // throw errors;
       return new AppError(errorMessage, 400);
     } 
     // Save data to the database

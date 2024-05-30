@@ -1,5 +1,4 @@
 const mongoose=require('mongoose')
-const Location = require('./locationModule');
 const schema=mongoose.Schema;
 
 const shipmentSchema=new schema(
@@ -29,12 +28,10 @@ const shipmentSchema=new schema(
         },
         sourceLocation:{
             type:String,
-            ref: 'Location',
             required: true,
         },
         destinationLocation:{
             type:String,
-            ref: 'Location',
             required: true,
         },
         cargoType:{
@@ -61,9 +58,5 @@ const shipmentSchema=new schema(
         versionKey: false,
     }
 )
-shipmentSchema.pre(/^find/, function (next) {
-    this.populate('sourceLocation').populate('destinationLocation');
-    next();
-});
-  
+
 module.exports = mongoose.model("shipment",shipmentSchema)

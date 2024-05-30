@@ -1,5 +1,4 @@
 const xlsx =require('xlsx');
-const Location =require('../filemodules/locationModule.js');
 const AppError =require('./appError.js');
 
 class ExcelParser {
@@ -40,6 +39,7 @@ class ExcelParser {
           'Shipment Number': shipmentNumber,
         } = shipmentData;
 
+        // Create a new shipment object with only the required fields
         const shipment = {
           shipmentType,
           orderNumber,

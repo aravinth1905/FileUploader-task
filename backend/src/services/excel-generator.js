@@ -8,7 +8,6 @@ class ExcelGenerator {
   }
 
   flattenData(data) {
-    console.log('datass', data);
     return data.map(item => ({
       shipmentType: item.shipmentType,
       orderNumber: item.orderNumber,

@@ -10,12 +10,8 @@ const shipmentSchemaValidation = Joi.object({
   primaryMode: Joi.string().required(),
   expectedDeliveryDate: Joi.date().min('now').required(),
   incoterm: Joi.string().required(),
-  sourceLocation: Joi.string()
-    .regex(/^[0-9a-fA-F]{24}$/, 'Invalid ID')
-    .required(),
-  destinationLocation: Joi.string()
-    .regex(/^[0-9a-fA-F]{24}$/, 'Invalid ID')
-    .required(),
+  sourceLocation: Joi.string().required(),
+  destinationLocation: Joi.string().required(),
   cargoType: Joi.string().valid('PTL', 'FTL').insensitive().required(),
   materialCode: Joi.string().required(),
   quantity: Joi.number().required(),

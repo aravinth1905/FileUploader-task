@@ -8,7 +8,7 @@ const proxyquire = require('proxyquire').noCallThru();
 const bullService = require('../../src/services/bullService.js');
 const shipmentModule = require('../../src/filemodules/shipmentModule.js');
 const ExcelGenerator= require('../../src/services/excel-generator.js')
-const AwsS3Wrapper=require('../../src/services/awsS3Wrapper.js')
+const AwsS3Wrapper=require('../../src/services/awsS3Wrapper.js');
 describe('uploadFile', () => {
   let req, res, next;
 
@@ -143,8 +143,7 @@ describe('getAllFileDetails', () => {
 describe('exportExcelFile', () => {
   let req, res, next;
   let target;
-  let generateXlsStub,excelParserStub, processedDataStub;
-  
+  let generateXlsStub;
 
   class ExcelGeneratorMock {
     constructor(data) {
@@ -154,23 +153,11 @@ describe('exportExcelFile', () => {
       return generateXlsStub();
     }
   }
-  class ExcelParserMock{
-    constructor(s3BufferData){
-      this.s3BufferData=s3BufferData;
-    }
-    toJson() {
-      return excelParserStub();
-    }
-    processExcelData(jsonData){
-      return processedDataStub();
-    }
-  }
+
   before(() => {
     target = proxyquire('../../src/controllers/shipmentController.js', {
       '../../src/filemodules/shipmentModule.js': shipmentModule,
       '../../src/services/excel-generator.js': ExcelGeneratorMock,
-      '../../src/utils/excelParser.js':ExcelParserMock
-      
     });
   });
 
@@ -192,38 +179,23 @@ describe('exportExcelFile', () => {
   });
 
   it('should return 404 if no shipments are found', async () => {
-    const findStub = sinon.stub(AwsS3Wrapper, 'getAllItemsFromS3').resolves([]);
+    const findStub = sinon.stub(shipmentModule, 'find').resolves([]);
+
     await target.exportExcelFile(req, res, next);
+
     expect(findStub).to.have.been.calledOnce;
     expect(res.status).to.have.been.calledWith(404);
     expect(res.json).to.have.been.calledWith({ error: 'No shipments found.' });
   });
 
   it('should set headers and return the generated Excel file if shipments are found', async () => {
-    const files=['demo.xlsx'];
+    const shipmentData = [{ id: 1, name: 'Shipment 1' }, { id: 2, name: 'Shipment 2' }];
     const excelData = 'someExcelDataBase64';
-    const filesStub = sinon.stub(AwsS3Wrapper, 'getAllItemsFromS3').resolves(files);
+    const findStub = sinon.stub(shipmentModule, 'find').resolves(shipmentData);
     generateXlsStub = sinon.stub().returns(excelData); 
-    const fileData={
-      Body: ' 50 4b 03 04 14 00 00 00 08 00 81 53 93 58 a4 9b 55 ac db 00 00 00 3b 02 00 00 0b 00 14 00 5f 72 65 6c 73 2f 2e 72 65 6c 73 01 00 10 00 00 00 00 00 00 ... 7305 more bytes'
-    };
-
-    const processedData=[{
-      'Shipment Type': 'Aloha',
-      'Order Number': 'MAMA-10',
-    }];
-   
-    const findStub = sinon.stub(AwsS3Wrapper, 'getObject').resolves(fileData)
-    
-    excelParserStub=sinon.stub().returns(processedData)
-    processedDataStub=sinon.stub().returns(processedData);
-
-    
 
     await target.exportExcelFile(req, res, next);
-    expect(filesStub).to.have.been.calledOnce;
-    expect(excelParserStub).to.have.been.calledOnce;
-    expect(processedDataStub).to.have.been.calledOnce;
+
     expect(findStub).to.have.been.calledOnce;
     expect(generateXlsStub).to.have.been.calledOnce;
     expect(res.setHeader).to.have.been.calledWith('Content-Disposition', 'attachment; filename=shipment-list.xlsx');
@@ -234,8 +206,10 @@ describe('exportExcelFile', () => {
 
   it('should return 500 if fetching shipments fails', async () => {
     const error = new Error('Failed to fetch shipments');
-    const findStub = sinon.stub(AwsS3Wrapper, 'getAllItemsFromS3').rejects(error);
+    const findStub = sinon.stub(shipmentModule, 'find').rejects(error);
+
     await target.exportExcelFile(req, res, next);
+
     expect(findStub).to.have.been.calledOnce;
     expect(res.status).to.have.been.calledWith(500);
     expect(res.json).to.have.been.calledWith({ error: 'Failed to fetch shipments.' });

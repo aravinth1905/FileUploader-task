@@ -1,7 +1,7 @@
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const { S3Client, S3BucketName, } = require('../config/s3Config');
-
+const { v4: uuidv4 } = require('uuid');
 const diskLimits = {
     fileSize: 8000000 
 };
@@ -16,7 +16,8 @@ const s3Storage = multerS3({
       cb(null, { original_name: file.originalname });
     },
     key: function (req, file, cb) {
-      cb(null, file.originalname);
+      const uid=uuidv4();
+      cb(null, `file-${uid}-${file.originalname}`);
     },
   });
   
