@@ -45,7 +45,7 @@
                     <td>{{ data.orderNumber }}</td>
                     <td>{{ data.orderType }}</td>
                     <td>{{ data.primaryMode }}</td>
-                    <td>{{ data.expectedDeliveryDate.split("T")[0] }}</td>
+                    <td v-if="data.expectedDeliveryDate">{{ data.expectedDeliveryDate.split("T")[0] }}</td>
                     <td>{{ data.incoterm }}</td>
                     <td>{{ data.sourceLocation }}</td>
                     <td>{{ data.destinationLocation}}</td> 
@@ -78,15 +78,15 @@ export default {
       AttachmentConstants,
       shipmentData: null,
       message: '',
-      isError: false
+      isError: false,
+      selectedFile:'No file chosen'
     }
   },
   methods: {
     handleFile(event) {
       this.file = event.target.files[0];
       const fileName = event.target.files[0].name;
-      const uploadText = document.querySelector('.file-upload-text');
-      uploadText.innerHTML = fileName;
+      this.selectedFile = fileName;
     },
     async handleUpload() {
       const formData = new FormData();
@@ -94,8 +94,9 @@ export default {
       try {
         const result = await actions.uploadExcelFile(formData);
         if (result && !result.error) {
-          this.handleReferesh();
+          // this.handleReferesh();
           this.showMessage('File uploaded successfully!', false);
+          this.selectedFile = 'No file chosen';
         }
       } catch (error) {
         console.log(error);
