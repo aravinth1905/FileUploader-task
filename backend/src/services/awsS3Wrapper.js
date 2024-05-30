@@ -12,23 +12,6 @@ class AwsS3Wrapper {
     }
   }
 
-  static async uploadToS3(key, body) {
-    const params = {
-      Bucket: S3BucketName,
-      Key: key,
-      Body: body,
-    };
-
-    const promisedUpload = promisify(S3Client.upload).bind(S3Client);
-    try {
-      const data = await promisedUpload(params);
-      return data.Location;
-    } catch (err) {
-      console.error('Error uploading file to FakeS3:', err);
-      throw new Error('Failed to upload file to FakeS3.');
-    }
-  }
-
   static async getAllItemsFromS3() {
     const params = {
       Bucket: S3BucketName,
@@ -46,8 +29,6 @@ class AwsS3Wrapper {
     }
   }
 
-
-  
 }
 
 module.exports = AwsS3Wrapper;

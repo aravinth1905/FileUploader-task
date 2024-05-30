@@ -6,7 +6,7 @@
         <div class="file-upload">
           <label for="upload" class="file-upload-label">
             <span class="file-btns choose">Choose File</span>
-            <span class="file-upload-text">No file chosen</span>
+            <span class="file-upload-text">{{selectedFile }}</span>
             <input type="file" id="upload" class="file-upload-input" :accept="AttachmentConstants.excelMimes" @change="handleFile">
           </label>
         </div>
